@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">C-Core-Bloom</string>
+    <string name="title_activity_main">C-Core-Bloom</string>
+    <string name="package_name">com.corebloom.app</string>
+    <string name="custom_url_scheme">com.corebloom.app</string>
+</resources>
