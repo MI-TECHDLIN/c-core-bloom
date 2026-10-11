@@ -204,7 +204,7 @@ export function DatabaseDashboard() {
   const fetchRows = useCallback(async () => {
     setLoading(true);
     try {
-      let query = supabase.from(config.name as keyof Database['public']['Tables']).select('*', { count: 'exact' });
+      let query = supabase.from(config.name as keyof DB['public']['Tables']).select('*', { count: 'exact' });
 
       if (search.trim() && config.searchColumns.length > 0) {
         const term = search.trim().replace(/[%,]/g, '');
@@ -343,7 +343,7 @@ export function DatabaseDashboard() {
       }
 
       const { error } = await supabase
-        .from(config.name as keyof Database['public']['Tables'])
+        .from(config.name as keyof DB['public']['Tables'])
         .update(payload as never)
         .eq('id', String(editRow.id));
       if (error) throw error;
@@ -363,7 +363,7 @@ export function DatabaseDashboard() {
     if (!deleteRow) return;
     try {
       const { error } = await supabase
-        .from(config.name as keyof Database['public']['Tables'])
+        .from(config.name as keyof DB['public']['Tables'])
         .delete()
         .eq('id', String(deleteRow.id));
       if (error) throw error;
