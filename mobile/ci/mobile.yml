@@ -1,0 +1,48 @@
+name: Mobile App CI & Web Sync Protection
+
+on:
+  push:
+    branches:
+      - main
+      - feat/mobile-app
+    paths:
+      - "src/**"
+      - "mobile/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "src/**"
+      - "mobile/**"
+
+jobs:
+  validate-mobile:
+    name: Mobile Build & Drift Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Web Safety Check
+        run: bash mobile/scripts/web-safety-check.sh
+
+      - name: Check Mobile Override Parity
+        run: npx tsx mobile/scripts/check-overrides.ts
+
+      - name: Run Mobile Typecheck
+        run: npm --prefix mobile run typecheck
+
+      - name: Build Mobile Application
+        run: npm --prefix mobile run build

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
+import type { Database as DB } from '@/integrations/supabase/types';
 import BackupRestore from './BackupRestore';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -204,7 +204,7 @@ export function DatabaseDashboard() {
   const fetchRows = useCallback(async () => {
     setLoading(true);
     try {
-      let query = supabase.from(config.name as keyof Database['public']['Tables']).select('*', { count: 'exact' });
+      let query = (supabase as any).from(config.name).select('*', { count: 'exact' });
 
       if (search.trim() && config.searchColumns.length > 0) {
         const term = search.trim().replace(/[%,]/g, '');
@@ -343,7 +343,7 @@ export function DatabaseDashboard() {
       }
 
       const { error } = await supabase
-        .from(config.name as keyof Database['public']['Tables'])
+        .from(config.name as never)
         .update(payload as never)
         .eq('id', String(editRow.id));
       if (error) throw error;
@@ -363,7 +363,7 @@ export function DatabaseDashboard() {
     if (!deleteRow) return;
     try {
       const { error } = await supabase
-        .from(config.name as keyof Database['public']['Tables'])
+        .from(config.name as never)
         .delete()
         .eq('id', String(deleteRow.id));
       if (error) throw error;
@@ -482,7 +482,7 @@ export function DatabaseDashboard() {
                   </TableRow>
                 ) : (
                   rows.map((row) => (
-                    <TableRow key={row.id}>
+                    <TableRow key={String(row.id)}>
                       {config.columns.map((c) => (
                         <TableCell key={c} className="max-w-[280px] align-top text-sm">
                           {renderCell(row, c)}
@@ -540,7 +540,7 @@ export function DatabaseDashboard() {
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit {config.label} record</DialogTitle>
-            <DialogDescription className="break-all">ID: {editRow?.id}</DialogDescription>
+            <DialogDescription className="break-all">ID: {String(editRow?.id ?? '')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             {config.editable.map((key) => {
@@ -572,12 +572,12 @@ export function DatabaseDashboard() {
                   {isLong ? (
                     <Textarea
                       rows={4}
-                      value={value ?? ''}
+                      value={String(value ?? '')}
                       onChange={(e) => setEditValues((p) => ({ ...p, [key]: e.target.value }))}
                     />
                   ) : (
                     <Input
-                      value={value ?? ''}
+                      value={String(value ?? '')}
                       onChange={(e) => setEditValues((p) => ({ ...p, [key]: e.target.value }))}
                     />
                   )}
@@ -603,7 +603,7 @@ export function DatabaseDashboard() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this record?</AlertDialogTitle>
             <AlertDialogDescription className="break-all">
-              This permanently removes the row from {config.label} (ID: {deleteRow?.id}). This cannot
+              This permanently removes the row from {config.label} (ID: {String(deleteRow?.id ?? '')}). This cannot
               be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

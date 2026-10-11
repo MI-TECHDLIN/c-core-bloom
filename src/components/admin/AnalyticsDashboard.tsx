@@ -261,7 +261,7 @@ export const AnalyticsDashboard = () => {
         totalQuestions: activity.totalQuestions,
         startTime: activity.startTime,
         endTime: activity.endTime,
-        answers: activity.answers,
+        answers: activity.answers as Record<string, unknown>,
       });
       
       toast({
@@ -298,7 +298,7 @@ export const AnalyticsDashboard = () => {
           totalQuestions: r.totalQuestions,
           startTime: r.startTime,
           endTime: r.endTime,
-          answers: r.answers,
+          answers: r.answers as Record<string, unknown>,
         }))
       );
       
