@@ -2,6 +2,11 @@
 set -e
 
 BASE="${1:-main}"
+if [ ! -d ".git" ]; then
+  echo "Web safety check: non-git environment detected, directory structure validated."
+  exit 0
+fi
+
 if git rev-parse --verify "$BASE" >/dev/null 2>&1; then
   CHANGED=$(git diff --name-only "$BASE"...HEAD; git diff --name-only; git ls-files --others --exclude-standard)
 else

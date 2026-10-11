@@ -12,6 +12,7 @@
     "android:release": "npx cap build android",
     "typecheck": "tsc --noEmit --noCheck",
     "lint": "eslint . --ext .ts,.tsx",
+    "check-overrides": "npx tsx scripts/check-overrides.ts",
     "web-safety-check": "bash ./scripts/web-safety-check.sh"
   },
   "dependencies": {
@@ -19,6 +20,7 @@
     "@capacitor/cli": "^7.0.1",
     "@capacitor/core": "^7.0.1",
     "@capacitor/ios": "^7.0.1",
+    "@capacitor/preferences": "^7.0.4",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",

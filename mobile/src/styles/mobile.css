@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --app-height: 100dvh;
   --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-right: env(safe-area-inset-right, 0px);
@@ -6,12 +6,16 @@
   --safe-area-left: env(safe-area-inset-left, 0px);
 }
 
+/* -------------------------------------------------------------
+ * 1. Base App Container & Viewport Setup
+ * ------------------------------------------------------------- */
 html, body, #root {
   min-height: var(--app-height);
   height: var(--app-height);
   margin: 0;
   background: #020817;
-  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
@@ -24,22 +28,207 @@ body {
   overflow-x: hidden;
   -webkit-user-select: none;
   user-select: none;
+  /* Prevent font booster / auto zoom on Android Chrome */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
-body.app-paused {
-  filter: saturate(0.9);
+/* -------------------------------------------------------------
+ * 2. Typography, Math & Question Content Wrapping
+ * ------------------------------------------------------------- */
+article,
+.question-content,
+[data-selectable="true"],
+pre,
+code,
+p,
+span,
+h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
-button, input, textarea, select, [role="button"], [data-radix-collection-item] {
+article,
+.question-content,
+[data-selectable="true"],
+pre,
+code,
+p {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Ensure images, formulas, and diagrams scale to viewport width */
+img,
+svg,
+canvas,
+iframe {
+  max-width: 100% !important;
+  height: auto;
+  object-fit: contain;
+}
+
+/* -------------------------------------------------------------
+ * 3. Touch Targets (Minimum 44x44px)
+ * ------------------------------------------------------------- */
+button,
+input,
+textarea,
+select,
+[role="button"],
+[role="radio"],
+[role="checkbox"],
+[role="tab"],
+[data-radix-collection-item],
+.clickable-item {
   min-height: 44px;
   touch-action: manipulation;
 }
 
-input,
-textarea,
-select,
-button {
-  font: inherit;
+/* Option choices in CBT exam (A, B, C, D) */
+label:has([role="radio"]),
+label:has(input[type="radio"]),
+[role="radiogroup"] > div,
+[role="radiogroup"] label {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 8px;
+  touch-action: manipulation;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+/* Active tap feedback */
+button:active,
+[role="button"]:active,
+[role="radio"]:active {
+  transform: scale(0.985);
+  opacity: 0.92;
+}
+
+/* Avoid content jumping under soft keyboard */
+input:focus,
+textarea:focus {
+  scroll-margin-bottom: 120px;
+}
+
+/* -------------------------------------------------------------
+ * 4. Responsive Tables for Narrow Screens (Admin & Results)
+ * ------------------------------------------------------------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Enforce horizontal containment so tables scroll cleanly without body overflow */
+.table-responsive,
+div:has(> table),
+[data-radix-scroll-area-viewport],
+div[class*="overflow-x-auto"] {
+  max-width: 100%;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  display: block;
+}
+
+/* -------------------------------------------------------------
+ * 5. Dialogs, Modals & Sheets on Mobile Devices
+ * ------------------------------------------------------------- */
+[role="dialog"],
+[role="alertdialog"],
+div[data-radix-dialog-content],
+div[data-radix-alert-dialog-content] {
+  max-width: calc(100vw - 20px) !important;
+  max-height: calc(100dvh - 32px) !important;
+  overflow-y: auto !important;
+  margin: auto;
+  border-radius: 12px;
+}
+
+/* -------------------------------------------------------------
+ * 6. Hover Replacement for Touch Surfaces
+ * ------------------------------------------------------------- */
+@media (hover: none) {
+  /* Reveal actions that are hidden by default behind hover states */
+  [class*="group-hover:opacity-100"],
+  [class*="hover:opacity-100"] {
+    opacity: 1 !important;
+  }
+}
+
+/* -------------------------------------------------------------
+ * 7. Viewport Specific Adaptations
+ * ------------------------------------------------------------- */
+
+/* Narrow phones (280px folded to 360px) */
+@media (max-width: 360px) {
+  /* Reduce padding on tight cards and dialogs */
+  .p-6 {
+    padding: 0.875rem !important;
+  }
+  .p-4 {
+    padding: 0.75rem !important;
+  }
+  .gap-4 {
+    gap: 0.5rem !important;
+  }
+
+  /* Compact CBT question numbers bar */
+  .grid-cols-5,
+  .grid-cols-8,
+  .grid-cols-10 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  /* Wrap action buttons that would otherwise overflow */
+  .flex-row {
+    flex-wrap: wrap !important;
+  }
+}
+
+/* Landscape orientation on mobile phones (height < 500px) */
+@media (orientation: landscape) and (max-height: 520px) {
+  body {
+    padding-top: calc(var(--safe-area-top) + 0px);
+    padding-bottom: calc(var(--safe-area-bottom) + 0px);
+  }
+
+  /* Compact sticky headers to preserve vertical question reading area */
+  header,
+  nav,
+  .sticky {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  /* Enable scrolling inside modals when height is constrained */
+  [role="dialog"],
+  div[data-radix-dialog-content] {
+    max-height: calc(100vh - 16px) !important;
+  }
+}
+
+/* Tablets & Foldable Unfolded (width >= 600px) */
+@media (min-width: 600px) {
+  /* Allow desktop multi-column layouts to take natural shape */
+  .table-responsive,
+  div:has(> table) {
+    display: table;
+  }
+}
+
+/* -------------------------------------------------------------
+ * 8. User Font Scaling & Accessibility
+ * ------------------------------------------------------------- */
+/* Respect user font scaling without clipping fixed height headers */
+header,
+footer,
+nav,
+.card-header {
+  height: auto !important;
+  min-height: fit-content;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -50,3 +239,37 @@ button {
     scroll-behavior: auto !important;
   }
 }
+
+/* -------------------------------------------------------------
+ * 9. Device-Tier Optimizations (Low, Mid, High)
+ * ------------------------------------------------------------- */
+
+/* LOW TIER: Extreme battery and GPU savings for budget devices (<= 2GB RAM / <= 4 cores) */
+html.tier-low * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-shadow: none !important;
+}
+
+html.tier-low .shadow-xl,
+html.tier-low .shadow-2xl,
+html.tier-low .shadow-lg {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+html.tier-low *,
+html.tier-low *::before,
+html.tier-low *::after {
+  transition-duration: 0.08s !important;
+}
+
+/* MID TIER: Balanced visual transitions without excessive blurs */
+html.tier-mid .shadow-2xl {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* HIGH TIER: Full fidelity, dynamic lighting and glassmorphism */
+html.tier-high {
+  /* Retains full styles */
+}
+
