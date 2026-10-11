@@ -132,7 +132,7 @@ const SystemConfigPanel = () => {
     const { error } = await supabase
       .from('system_config')
       .update({ 
-        value, 
+        value: value as never, 
         updated_at: new Date().toISOString(),
         updated_by: user?.id 
       })

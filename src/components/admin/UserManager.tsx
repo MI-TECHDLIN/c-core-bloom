@@ -130,7 +130,7 @@ export const UserManager = () => {
       .from('user_roles')
       .insert({
         user_id: selectedUser.id,
-        role: newRole,
+        role: newRole as 'admin' | 'super_admin' | 'user',
       });
 
     if (error) {
@@ -173,7 +173,7 @@ export const UserManager = () => {
       .from('user_roles')
       .delete()
       .eq('user_id', user.id)
-      .eq('role', role);
+      .eq('role', role as 'admin' | 'super_admin' | 'user');
 
     if (error) {
       toast({
