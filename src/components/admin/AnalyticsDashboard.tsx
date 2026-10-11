@@ -298,7 +298,7 @@ export const AnalyticsDashboard = () => {
           totalQuestions: r.totalQuestions,
           startTime: r.startTime,
           endTime: r.endTime,
-          answers: r.answers,
+          answers: r.answers as Record<string, unknown>,
         }))
       );
       
