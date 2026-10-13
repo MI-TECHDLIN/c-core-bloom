@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Clock } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -8,48 +8,85 @@ interface TestTimerProps {
   startTime?: number;
 }
 
+/**
+ * Wall-clock based timer: remaining time is always computed from
+ * Date.now() - startTime, so switching browser tabs, minimizing the
+ * window, or the browser throttling timers cannot cause drift.
+ */
 export const TestTimer = ({ durationMinutes, onTimeUp, startTime }: TestTimerProps) => {
-  const [timeLeft, setTimeLeft] = useState(() => {
-    if (startTime) {
-      const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
-      const remaining = durationMinutes * 60 - elapsedSeconds;
-      return Math.max(0, remaining);
-    }
-    return durationMinutes * 60;
-  });
+  const initialStartTimeRef = useRef<number>(startTime || Date.now());
+  const onTimeUpRef = useRef(onTimeUp);
+  onTimeUpRef.current = onTimeUp;
+
+  const totalAllowedSeconds = durationMinutes * 60;
+
+  const computeRemaining = useCallback(() => {
+    const elapsedSeconds = Math.floor((Date.now() - initialStartTimeRef.current) / 1000);
+    const remaining = totalAllowedSeconds - elapsedSeconds;
+    return Math.max(0, remaining);
+  }, [totalAllowedSeconds]);
+
+  const [timeLeft, setTimeLeft] = useState(computeRemaining);
   const [isActive, setIsActive] = useState(true);
   const [showWarning, setShowWarning] = useState(false);
 
   useEffect(() => {
-    if (timeLeft <= 0 && isActive) {
-      setIsActive(false);
-      onTimeUp();
+    if (startTime) {
+      initialStartTimeRef.current = startTime;
+      setTimeLeft(computeRemaining());
     }
-  }, [timeLeft, isActive, onTimeUp]);
+  }, [startTime, computeRemaining]);
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            setIsActive(false);
-            onTimeUp();
-            return 0;
-          }
-          
-          if (prev === 300) {
-            setShowWarning(true);
-          }
-          
-          return prev - 1;
-        });
-      }, 1000);
+    if (timeLeft <= 0 && isActive) {
+      setIsActive(false);
+      onTimeUpRef.current();
     }
+  }, [timeLeft, isActive]);
 
-    return () => clearInterval(interval);
-  }, [isActive, timeLeft, onTimeUp]);
+  useEffect(() => {
+    if (!isActive) return;
+
+    const syncTime = () => {
+      const remaining = computeRemaining();
+      setTimeLeft(remaining);
+
+      if (remaining <= 300 && remaining > 0) {
+        setShowWarning(true);
+      }
+
+      if (remaining <= 0) {
+        setIsActive(false);
+        onTimeUpRef.current();
+      }
+    };
+
+    // Immediate sync
+    syncTime();
+
+    // Regular interval
+    const interval = setInterval(syncTime, 1000);
+
+    // Sync immediately when the tab becomes visible or window regains focus
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        syncTime();
+      }
+    };
+
+    const handleFocus = () => {
+      syncTime();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [isActive, computeRemaining]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -71,7 +108,7 @@ export const TestTimer = ({ durationMinutes, onTimeUp, startTime }: TestTimerPro
           {formatTime(timeLeft)}
         </span>
       </div>
-      
+
       {showWarning && isLowTime && (
         <Alert variant="destructive">
           <AlertDescription>
