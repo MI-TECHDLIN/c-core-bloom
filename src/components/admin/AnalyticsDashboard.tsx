@@ -7,6 +7,7 @@ import { Users, BookOpen, Trophy, TrendingUp, Activity, Clock, BarChart3, UserCh
 import { Progress } from '@/components/ui/progress';
 import { downloadTestResultPDF, downloadBulkTestResultsPDF } from '@/lib/pdfGenerator';
 import { useToast } from '@/hooks/use-toast';
+import { UserPerformanceStats } from './UserPerformanceStats';
 
 interface Stats {
   totalUsers: number;
@@ -401,6 +402,8 @@ export const AnalyticsDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      <UserPerformanceStats results={allResults} />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
