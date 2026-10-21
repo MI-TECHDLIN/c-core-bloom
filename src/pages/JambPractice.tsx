@@ -615,7 +615,7 @@ export default function JambPractice() {
                 <Card className="border shadow-sm">
                   <CardContent className="p-3.5 space-y-3">
                     <div className="flex items-center justify-between text-xs font-semibold">
-                      <span>Jump to question</span>
+                      <span>Questions</span>
                       <span className="text-muted-foreground">
                         {Object.keys(answers).length} of {questions.length} answered
                       </span>
