@@ -712,12 +712,12 @@ export default function JambPractice() {
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[520px] text-sm text-left">
+                  <table className="w-full text-sm text-left">
                     <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b">
                       <tr>
                         <th className="p-3">Subject</th>
-                        <th className="p-3 text-center">Questions</th>
-                        <th className="p-3 text-center">Answered</th>
+                        <th className="hidden p-3 text-center sm:table-cell">Questions</th>
+                        <th className="hidden p-3 text-center sm:table-cell">Answered</th>
                         <th className="p-3 text-center">Correct</th>
                         <th className="p-3 text-center">Accuracy</th>
                         <th className="p-3 text-right whitespace-nowrap">Score /100</th>
@@ -727,8 +727,8 @@ export default function JambPractice() {
                       {subjectBreakdown.map(sb => (
                         <tr key={sb.subject} className="hover:bg-accent/50">
                           <td className="p-3 font-semibold">{titleCase(sb.subject)}</td>
-                          <td className="p-3 text-center">{sb.total}</td>
-                          <td className="p-3 text-center">{sb.answered}</td>
+                          <td className="hidden p-3 text-center sm:table-cell">{sb.total}</td>
+                          <td className="hidden p-3 text-center sm:table-cell">{sb.answered}</td>
                           <td className="p-3 text-center text-emerald-600 font-bold">{sb.correct}</td>
                           <td className="p-3 text-center font-semibold">{sb.percent}%</td>
                           <td className="p-3 text-right font-bold text-primary">{sb.jambScaled}</td>

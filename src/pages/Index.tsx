@@ -65,7 +65,7 @@ const Index = () => {
       </header>
 
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-10 sm:py-16">
-        <div className="container mx-auto max-w-5xl">
+        <div className="mx-auto w-full max-w-5xl">
           <div className="mx-auto max-w-2xl text-center">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:text-sm">
               JAMB UTME practice
